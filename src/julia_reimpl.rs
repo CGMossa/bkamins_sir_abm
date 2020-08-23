@@ -1,6 +1,6 @@
 //!
 //! Things to try out or expand on
-//! 
+//!
 //! - Plot the states on the grid itself as to see how the spread is happening
 //! - Count how many times each cell has been occuppied
 //! - Find out by how many agents has any given cell been occuppied with at any given time?
@@ -34,29 +34,17 @@ struct Agent {
 }
 
 impl Agent {
-    #[must_use]
-    pub fn die(&self, tick: usize) -> Self {
-        Self {
-            agent_type: AgentType::AgentD,
-            tick,
-            ..*self
-        }
+    pub fn die(&mut self, tick: usize) {
+        self.agent_type = AgentType::AgentD;
+        self.tick = tick;
     }
-    #[must_use]
-    pub fn recover(&self, tick: usize) -> Self {
-        Self {
-            tick,
-            agent_type: AgentType::AgentR,
-            ..*self
-        }
+    pub fn recover(&mut self, tick: usize) {
+        self.agent_type = AgentType::AgentR;
+        self.tick = tick;
     }
-    #[must_use]
-    pub fn infect(&self, tick: usize) -> Self {
-        Self {
-            tick,
-            agent_type: AgentType::AgentI,
-            ..*self
-        }
+    pub fn infect(&mut self, tick: usize) {
+        self.agent_type = AgentType::AgentI;
+        self.tick = tick;
     }
 
     pub fn move_agent(&mut self, grid_dimension: (usize, usize)) {
@@ -161,10 +149,10 @@ impl Environment {
         for (i, a) in past_agents.iter().enumerate() {
             if let AgentType::AgentI = a.agent_type {
                 if tick - a.tick > self.duration {
-                    self.agents[i] = if rng.gen_bool(self.p_death) {
-                        Agent::die(a, tick)
+                    if rng.gen_bool(self.p_death) {
+                        self.agents[i].die(tick)
                     } else {
-                        Agent::recover(a, tick)
+                        self.agents[i].recover(tick)
                     }
                 } else {
                     if tick == a.tick {
@@ -175,7 +163,7 @@ impl Environment {
                         // let a2: Agent = self.agents[j];
                         // let a2: Agent = past_agents[j];
                         if let AgentType::AgentS = past_agents[j].agent_type {
-                            self.agents[j] = Agent::infect(&past_agents[j], tick);
+                            self.agents[j].infect(tick);
                         }
                     }
                 }
@@ -209,8 +197,10 @@ impl Environment {
     pub fn run(&mut self) -> Vec<TallyStates> {
         // max ticks for the default scenario is 300 ticks
         let mut stats_ticks = vec![self.stats.clone()];
-
+        // let elapsed_ticks = 0;
         while self.stats.infected > 0 {
+            // elapsed_ticks += 1;
+
             // run while there are infected individuals
             self.tick += 1;
             self.update_type();
@@ -218,6 +208,10 @@ impl Environment {
             //FIXME: maybe this needs to be polled somehow?
             self.stats = self.get_statistics();
             stats_ticks.push(self.stats.clone());
+
+            // if self.tick >= 1000 {
+            //     break
+            // }
         }
 
         stats_ticks
@@ -260,7 +254,7 @@ fn fraction_infected(l: usize) -> f64 {
     let mut e = Environment::init(2000, 10, l, 0.05, 100, 100);
     e.run();
 
-    1.0 -  e.stats.susceptible as f64 / 2000.0
+    1.0 - e.stats.susceptible as f64 / 2000.0
 }
 
 #[cfg(test)]
@@ -278,8 +272,12 @@ mod tests {
 
     #[test]
     fn test_mod1() {
-        assert_eq!(0 % 10, 0);
-        assert_eq!(11 % 11, 1);
+        // assert_eq!(0 % 10, 10);
+        // assert_eq!(11 % 10, 1);
+        use num::integer::mod_floor as mod1;
+        
+        assert_eq!(mod1(0 , 10), 10);
+        assert_eq!(mod1(11 , 10), 1);
     }
 
     #[test]
@@ -312,21 +310,19 @@ mod tests {
     fn test_fraction_infected() {
         let len = 5..=30;
         let runs = 16;
-        
-        let inf = len.clone().map(|l| {
-            (1..=runs)
-                .map(|_r| fraction_infected(l))
-                .sum::<f64>() / runs as f64
-        }).collect::<Vec<_>>();
 
-        use plotly::{Scatter, Plot};
+        let inf = len
+            .clone()
+            .map(|l| (1..=runs).map(|_r| fraction_infected(l)).sum::<f64>() / runs as f64)
+            .collect::<Vec<_>>();
+
+        use plotly::{Plot, Scatter};
         let mut fraction_plot = Plot::new();
-        
-        let fraction_trace = Scatter::new(len.collect::<Vec<_>>(), inf).name("fraction of infected");
+
+        let fraction_trace =
+            Scatter::new(len.collect::<Vec<_>>(), inf).name("fraction of infected");
         fraction_plot.add_trace(fraction_trace);
 
         fraction_plot.show();
-
-
     }
 }
