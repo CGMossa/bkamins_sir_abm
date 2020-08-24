@@ -2,8 +2,8 @@
 //! Things to try out or expand on
 //!
 //! - Plot the states on the grid itself as to see how the spread is happening
-//! - Count how many times each cell has been occuppied
-//! - Find out by how many agents has any given cell been occuppied with at any given time?
+//! - Count how many times each cell has been occupied
+//! - Find out by how many agents has any given cell been occupied with at any given time?
 //!
 //!
 //!
@@ -145,24 +145,25 @@ impl Environment {
         let tick = self.tick;
         let mut rng = thread_rng();
         // note: cannot change agents while also using their present state
-        let past_agents = self.agents.clone();
-        for (i, a) in past_agents.iter().enumerate() {
-            if let AgentType::AgentI = a.agent_type {
-                if tick - a.tick > self.duration {
+        // let past_agents = self.agents.clone();
+        for i in 0..self.agents.len() {
+            if let AgentType::AgentI = self.agents[i].agent_type {
+                if tick - self.agents[i].tick > self.duration {
                     if rng.gen_bool(self.p_death) {
                         self.agents[i].die(tick)
                     } else {
                         self.agents[i].recover(tick)
                     }
                 } else {
-                    if tick == a.tick {
+                    if tick == self.agents[i].tick {
                         continue;
                     }
 
-                    for j in self.grid[&(a.x, a.y)].clone().into_iter() {
-                        // let a2: Agent = self.agents[j];
-                        // let a2: Agent = past_agents[j];
-                        if let AgentType::AgentS = past_agents[j].agent_type {
+                    for j in self.grid[&(self.agents[i].x, self.agents[i].y)]
+                        .clone()
+                        .into_iter()
+                    {
+                        if let AgentType::AgentS = self.agents[j].agent_type {
                             self.agents[j].infect(tick);
                         }
                     }
@@ -197,10 +198,8 @@ impl Environment {
     pub fn run(&mut self) -> Vec<TallyStates> {
         // max ticks for the default scenario is 300 ticks
         let mut stats_ticks = vec![self.stats.clone()];
-        // let elapsed_ticks = 0;
-        while self.stats.infected > 0 {
-            // elapsed_ticks += 1;
 
+        while self.stats.infected > 0 {
             // run while there are infected individuals
             self.tick += 1;
             self.update_type();
@@ -208,10 +207,6 @@ impl Environment {
             //FIXME: maybe this needs to be polled somehow?
             self.stats = self.get_statistics();
             stats_ticks.push(self.stats.clone());
-
-            // if self.tick >= 1000 {
-            //     break
-            // }
         }
 
         stats_ticks
