@@ -14,6 +14,12 @@ in which they take ownership of the current agent, and create a new agent with t
 field. This is done through mutable references in the Rust implementation.
 This did not alter the computational performance of the code.
 
+| Command | Mean [s] | Min [s] | Max [s] | Relative |
+|:---|---:|---:|---:|---:|
+| Pure re-implementation | 2.310 ± 0.171 | 2.106 | 2.620 | 1.00 |
+| Mutable references instead immutable operations | 2.164 ± 0.135 | 1.941 | 2.399 | 1.00 |
+
+
 - `grid` is not a matrix but a `HashMap`.
 
 ## TODO
