@@ -7,7 +7,7 @@ through tests. Thus execute the command `cargo test --release` to see these resu
 
 ## Differences between Julia and Rust implementations
 
-- Using mutable references for `die`, `infect`, `move`, and `recover`. 
+- Using mutable references for `die`, `infect`, `move`, and `recover`.
 
 In the Julia code, there are consuming functions, `die`, `infect`, `move`, and `recover`,
 in which they take ownership of the current agent, and create a new agent with the altered
@@ -18,6 +18,8 @@ This did not alter the computational performance of the code.
 |:---|---:|---:|---:|---:|
 | Pure re-implementation | 2.310 ± 0.171 | 2.106 | 2.620 | 1.00 |
 | Mutable references instead immutable operations | 2.164 ± 0.135 | 1.941 | 2.399 | 1.00 |
+| Cloning list of agents in update | 1.363 ± 0.124 | 1.215 | 1.640 | 1.00 |
+| No cloning of agents in update | 1.293 ± 0.065 | 1.177 | 1.395 | 1.00 |
 
 : Ignore the Relative variable, as these rows come from different runs. This was done using [`hyperfine`](https://github.com/sharkdp/hyperfine).
 
