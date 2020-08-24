@@ -19,8 +19,9 @@ This did not alter the computational performance of the code.
 | Pure re-implementation | 2.310 ± 0.171 | 2.106 | 2.620 | 1.00 |
 | Mutable references instead immutable operations | 2.164 ± 0.135 | 1.941 | 2.399 | 1.00 |
 
+: Ignore the Relative variable, as these rows come from different runs. This was done using [`hyperfine`](https://github.com/sharkdp/hyperfine)
 
-- `grid` is not a matrix but a `HashMap`.
+- `grid` is not a matrix but a `HashMap` or dictionary.
 
 ## TODO
 
