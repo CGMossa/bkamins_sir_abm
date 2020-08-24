@@ -275,9 +275,9 @@ mod tests {
         // assert_eq!(0 % 10, 10);
         // assert_eq!(11 % 10, 1);
         use num::integer::mod_floor as mod1;
-        
-        assert_eq!(mod1(0 , 10), 10);
-        assert_eq!(mod1(11 , 10), 1);
+
+        assert_eq!(mod1(0, 10), 10);
+        assert_eq!(mod1(11, 10), 1);
     }
 
     #[test]
@@ -289,11 +289,13 @@ mod tests {
 
         let ticks: Vec<_> = (0..states_record.len()).collect();
         let soa_records: TallyStatesVec = TallyStatesVec::from_iter(states_record.into_iter());
+
         let susceptible_trace =
             Scatter::new(ticks.clone(), soa_records.susceptible).name("susceptible");
         let infected_trace = Scatter::new(ticks.clone(), soa_records.infected).name("infected");
         let recovered_trace = Scatter::new(ticks.clone(), soa_records.recovered).name("recovered");
         let dead_trace = Scatter::new(ticks, soa_records.dead).name("dead");
+
         let mut states_plots = Plot::new();
         states_plots.add_trace(susceptible_trace);
         states_plots.add_trace(infected_trace);
@@ -302,7 +304,6 @@ mod tests {
 
         states_plots.show();
 
-        //TODO: plot e.stats over ticks
         // Annotate the legends
     }
 
